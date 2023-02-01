@@ -32,7 +32,7 @@ else
 ifndef GENERIC_OUTPUT
 	$(VLOG) $(TB_SRC) $(GENERATED_VERILOG) $(ECP5_SRC)/cells_bb.v -o $(SIM_PROC) -I $(ECP5_SRC) -l$(ECP5_SRC)/cells_sim.v
 else
-	$(VLOG) $(TB_SRC) $(GENERATED_VERILOG) -o $(SIM_PROC)
+	$(VLOG) $(TB_SRC) $(GENERATED_VERILOG) $(DEFINE) -o $(SIM_PROC)
 endif
 endif
 

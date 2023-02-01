@@ -7,7 +7,7 @@ include config.mk
 VCD ?=0
 
 sim:
-	make -C $(SIM_DIR) run
+	make -C $(SIM_DIR) run $(VCD)
 
 sim-test:
 	make -C $(SIM_DIR) test
