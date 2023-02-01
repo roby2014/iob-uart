@@ -9,25 +9,32 @@ ifeq ($(VCD),1)
 DEFINE+=$(defmacro)VCD
 endif
 
-VSRC+=$(UART_HW_DIR)/simulation/testbench/uart_tb.v
+TB_SRC=$(UART_HW_DIR)/simulation/testbench/uart_tb.v
+VSRC+=$(TB_SRC)
 
-#icarus verilog simulator
-VLOG:=iverilog -W all -g2005-sv
+VLOG:=iverilog -Wall -g2012 #icarus verilog simulator flags
+ECP5_SRC=/usr/share/yosys/ecp5
+SIM_PROC=a.out
+GENERATED_VERILOG=SYNTH.v
 
-.PHONY: run \
-	test test1 \
-	debug
-	clean-testlog clean clean-all
-
-run: a.out
+run: $(SIM_PROC)
 	./$< $(TEST_LOG)
 ifeq ($(VCD),1)
 	if [ "`pgrep -u $(USER) gtkwave`" ]; then killall -q -9 gtkwave; fi
 	gtkwave -a ../waves.gtkw uut.vcd &
 endif
 
-a.out: $(VSRC) $(VHDR)
+$(SIM_PROC): $(VSRC) $(VHDR)
+ifndef YOSYS_VERILOG
 	$(VLOG) $(INCLUDE) $(DEFINE) $(VSRC)
+else 
+	tclsh generate_yosys_verilog.tcl "$(INCLUDE)" "$(DEFINE)" "$(VSRC)" "$(GENERATED_VERILOG)" "$(GENERIC_OUTPUT)"
+ifndef GENERIC_OUTPUT
+	$(VLOG) $(TB_SRC) $(GENERATED_VERILOG) $(ECP5_SRC)/cells_bb.v -o $(SIM_PROC) -I $(ECP5_SRC) -l$(ECP5_SRC)/cells_sim.v
+else
+	$(VLOG) $(TB_SRC) $(GENERATED_VERILOG) -o $(SIM_PROC)
+endif
+endif
 
 test: clean-testlog test1
 	diff -q test.log test.expected
@@ -47,6 +54,11 @@ clean-testlog:
 	@rm -f test.log
 
 clean: uart-hw-clean
-	@rm -f a.out *.vcd
+	@rm -f $(SIM_PROC) $(GENERATED_VERILOG) *.vcd *.log *.ys *.json
 
 clean-all: clean-testlog clean
+
+.PHONY: run \
+	test test1 \
+	debug
+	clean-testlog clean clean-all

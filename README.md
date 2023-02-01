@@ -24,6 +24,9 @@ To clean the simulation generated files:
 make sim-clean
 ```
 
+You can set `YOSYS_VERILOG=1` variable to simulate generated verilog from yosys synthesis.
+By default, it will generate verilog for ECP5 FPGA, however, you can generate generic code by also using `GENERIC_OUTPUT=1`.
+
 ## Compile and FPGA netlist
 
 Install the FPGA design tools of your favority vendor. Create an FPGA build
@@ -109,10 +112,10 @@ resides in the same directory; if they differ, the test fails; otherwise, it
 passes.
 
 To run the series of simulation tests on all the simulators listed in the
-SIMOLATOR\_LIST variable, type:
+SIMULATOR\_LIST variable, type:
 
 ```
-make test-sim [SIMOLATOR_LIST="<simulator directory list>"]
+make test-sim [SIMULATOR_LIST="<simulator directory list>"]
 ```
 
 where `<simulator directory list>` is the list of sub-directories in directory
